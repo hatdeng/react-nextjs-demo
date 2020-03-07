@@ -41,7 +41,8 @@ module.exports = (server) => {
                 //console.log(userInfoResp.data)
                 ctx.session.userInfo = userInfoResp.data
                 
-                ctx.redirect('/')
+                ctx.redirect((ctx.session && ctx.session.urlBeforeOAth) || '/')
+                ctx.session.urlBeforeOAth = ''
             } else {
                 ctx.body = `request token failed ${result.message}`
             }
@@ -49,4 +50,31 @@ module.exports = (server) => {
             await  next()
         }
     })
+
+    server.use(async (ctx, next) => {
+        const path = ctx.path
+        const method = ctx.method
+        if (path === './logout' && method === 'POST') {
+            ctx.session = null
+            ctx.body = `logout success `
+        } else {
+            await  next()
+        }
+    })
+
+
+    server.use(async (ctx, next) => {
+        const path = ctx.path
+        const method = ctx.method
+        if (path === '/prepare-auth' && method === 'GET') {
+            const { url } = ctx.query
+            ctx.session.urlBeforeOAth = url
+
+            ctx.redirect(config.OAUTH_URL)
+        } else {
+            await  next()
+        }
+    })
+
+
 }

@@ -1,5 +1,8 @@
 *.private.php
+*.map
+*.json
 .idea/
+.next/
 
 /nbproject
 
@@ -20,3 +23,4 @@ static/src/js/product-new-rx_BACKUP_5376.js
 
 .idea/
 /.idea
+/pages-test

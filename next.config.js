@@ -55,9 +55,6 @@ const configs = {
 if(typeof require !== 'undefined') {
     require.extensions['.css'] = file => {}
 }
-const GITHUB_OAUTH_URL = 'https://github.com/login/oauth/authorize'
-const SCOPE = 'user'
-
 module.exports = withCss({
     env: {
         customKey: 'value',
@@ -68,10 +65,9 @@ module.exports = withCss({
     },
     // 在服务器渲染和客户端渲染都可获取的配置
     
-
     publicRuntimeConfig: {
         staticFolder: '/static',
-        GITHUB_OAUTH_URL,
-        OAUTH_URL: `${GITHUB_OAUTH_URL}?client_id=${Config.github.client_id}&scope=${SCOPE}`
+        GITHUB_OAUTH_URL: Config.GITHUB_OAUTH_URL,
+        OAUTH_URL: Config.OAUTH_URL
     },
 })

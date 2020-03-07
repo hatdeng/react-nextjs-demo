@@ -1,98 +1,57 @@
-import { useEffect } from 'react'
-import axios from 'axios'
-
-import Link from 'next/link'
-import { Button } from "antd"
-import Router from 'next/router'
-import { connect } from 'react-redux'
+import { Button } from 'antd'
 import getConfig from 'next/config'
+const api = require('../lib/api')
 
 const { publicRuntimeConfig } = getConfig()
-
-import { add } from '../store/store'
-const events = [
-    'routeChangeStart',
-    'routeChangeComplete',
-    'routeChangeError',
-    'beforeHistoryChange',
-    'hashChangeStart',
-    'hashChangeComplete',
-]
-
-function makeEvent(type) {
-    return (...args) => {
-        console.log(type, ...args)
+function Index ({ userRepos, userStaredRepos, isLogin }){
+    console.log(userRepos, userStaredRepos,  isLogin)
+    if(!isLogin) {
+        return <div className="root">
+            <p>You have not login  Please login </p>
+            <Button type="primary" href={publicRuntimeConfig.OAUTH_URL}>Login </Button>
+            <style jsx>{`
+                .root {
+                    height: 400px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                }
+            `}</style>
+        </div>
     }
+    return (<span>Index</span>)
 }
+Index.getInitialProps = async ({ ctx, reduxStore })=>{
+    /* const result = await axios
+    .get('/github/search/repositories?q=react')
+    .then(resp=> console.log(resp)) */
 
-events.forEach(event =>{
-    Router.events.on(event, makeEvent(event))
-})
-
-const Index =  ({counter, username, rename, add})=>{
-    function goToTestB () {
-        Router.push({
-            pathname: '/test/b',
-            query:{
-                id: 2
-            }
-        }, 'test/b/2')
+    const user = reduxStore.getState().user
+    console.log(reduxStore)
+    if(!user || !user.id) {
+        return {
+            isLogin: false
+        }
     }
-
-    useEffect(() => {
-        axios.get('/api/user/info').then(resp => {
-            console.log(resp)
-        })
-    }, [])
-
-    return (
-        <>  
-            <br />
-            bofore boday
-            <br />
-            <span className="test">Index</span>
-            <br />
-            <br />
-            <br />
-            <input value={username} onChange={(e) => rename(e.target.value)} />
-            <button onClick={()=> add(counter)}>Do ADD</button>
-            <br />
-            <br />
-            This is index page <Button className="primary">Button Click me</Button><br />
-            <p>
-                <Link href="/a?id=10000" as="/a/10000">
-                    <a>
-                    <span>This is a link to a</span>
-                    <i>This is a link to a</i>
-                    go to AAA
-                    </a>
-                </Link>
-            </p>
-
-            <Button onClick={goToTestB}> Test b</Button>
-            <br />
-            <span>count: {counter}</span><br />
-            <span>username: {username}</span>
-
-            <br />
-            <a href={publicRuntimeConfig.OAUTH_URL}> Go to Login</a>
-        </>
+    const userRepos = await api.request(
+        {
+            url: '/user/repos',
+        },
+        ctx.req,
+        ctx.res
     )
-}
 
-Index.getInitialProps = async({ reduxStore })=>{
-    reduxStore.dispatch(add(3))
-    return {}
-}
-
-export default connect(function mapStateToProps(state){
+    const userStaredRepos = await api.request({
+            url: '/user/starred',
+        },
+        ctx.req,
+        ctx.res,
+    )
     return {
-        counter: state.counter.count,
-        username: state.user.username,
+        isLogin: true,
+        userRepos: userRepos.data,
+        userStaredRepos: userStaredRepos.data
     }
-}, function mapDispatchToProps(dispatch){
-    return  {
-        add: (num) => dispatch({type: 'ADD', num }),
-        rename: (name) => dispatch({type: 'UPDATE_USERNAME', name}),
-    }
-})(Index)
+}
+export default Index

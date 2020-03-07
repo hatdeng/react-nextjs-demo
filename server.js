@@ -6,7 +6,10 @@ const { parse } = require('url')
 const next = require('next')
 const session = require('koa-session')
 const Redis = require('ioredis')
+const koaBody = require('koa-body')
+
 const auth = require('./server/auth')
+const api = require('./server/api')
 
 const RedisSessionStore = require('./server/session-store')
 
@@ -24,15 +27,19 @@ app.prepare().then(() => {
     const router = new Router()
     
     server.keys = ['jokecy develop git up app']
+
+    server.use(koaBody())
+
     const SESSION_CONFIG = {
         key: 'jid',
-        maxAge:　10 * 1000,
+        maxAge:　3600 * 1000,
         store: new RedisSessionStore(redis),
     }
     server.use(session(SESSION_CONFIG, server))
 
     // 配置处理github OAuth 的登录
     auth(server)
+    api(server)
     server.use(async (ctx, next) =>{
         /* console.log(ctx.cookies.get('id'))
 
@@ -99,6 +106,8 @@ app.prepare().then(() => {
     server.use(async (ctx, next) => {
         ctx.cookies.set('id', 'userid: xxxxxx')
 
+
+        ctx.req.session = ctx.session
         await handle(ctx.req, ctx.res)
         ctx.respond = false
     })

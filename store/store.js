@@ -1,16 +1,15 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux'
 import ReduxThunk from 'redux-thunk'
 import { composeWithDevTools } from 'redux-devtools-extension'
-const initialState = {
+import axios from 'axios'
+/* const initialState = {
     count: 0
-}
+} */
 
-const userInitialState = {
-    username: 'jokcy'
-}
-const ADD = 'ADD'
+const userInitialState = {}
+/* const ADD = 'ADD' */
 
-function countReducer (state = initialState, action) {
+/* function countReducer (state = initialState, action) {
     console.log(state, action)
     switch (action.type) {
         case ADD: 
@@ -21,22 +20,41 @@ function countReducer (state = initialState, action) {
 }
 
 const UPDATE_USERNAME = 'UPDATE_USERNAME'
+ */
+
+const LOGOUT = 'LOGOUT'
+
 
 function userReducer(state = userInitialState, action) {
     switch (action.type) {
-        case UPDATE_USERNAME:
-            return {
-                ...state,
-                username: action.name
-            }
+        case LOGOUT: {
+            return {}
+        }
             default:
                 return state
     }
 }
 const allReducers = combineReducers({
-    counter: countReducer,
     user: userReducer
 })
+
+// asction creators
+export function logout () {
+    return dispatch => {
+        axios.post('/logout')
+        .then(resp =>{
+            if(resp.status === 200){
+                dispatch({
+                    type: LOGOUT
+                })
+            } else {
+                console.log('logout faled', resp);
+            }
+        }).catch(err => {
+            console.log('logout faled', err)
+        })
+    }
+}
 /* const store = createStore(
     allReducers, 
     {
@@ -49,7 +67,7 @@ const allReducers = combineReducers({
 
 //console.log(store.getState())
 //
-export function add(num) {
+/* export function add(num) {
     return {
         type: ADD,
         num
@@ -62,7 +80,7 @@ function assAsync (num) {
             dispath(add(num))
         }, 1000)
     }
-}
+} */
 
 /* //store.dispatch({type: ADD})
 store.dispatch(assAsync(5))
@@ -82,7 +100,7 @@ export default function initializeStore (state) {
         Object.assign(
             {},
             {
-                counter: initialState,
+                //counter: initialState,
                 user: userInitialState
             },
             state,
