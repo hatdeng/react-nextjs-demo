@@ -7,10 +7,10 @@ import Router, { withRouter } from 'next/router'
 import LRU from 'lru-cache'
 
 import Repo from '../components/Repo'
-
-const cache = new LRU({
+// two type of cache one two
+/* const cache = new LRU({
     maxAge: 1000 * 5
-})
+}) */
 
 const api = require('../lib/api')
 
@@ -29,14 +29,19 @@ const { publicRuntimeConfig } = getConfig()
     }
     useEffect(() => {
         if(!isServer) {
-            /* cachedUserRepos = userRepos
-            cachedUserStaredRepos = userStaredRepos */
-            if(userRepos) {
+            cachedUserRepos = userRepos
+            cachedUserStaredRepos = userStaredRepos
+            /* if(userRepos) {
                 cache.set('userRepos', userRepos)
             }            
             if(userStaredRepos) {
                 cache.set('userStaredRepos', userStaredRepos)
-            }            
+            }  */
+            
+            const timeout = setTimeout(()=>{
+                cachedUserRepos = null
+                cachedUserStaredRepos = null
+            }, 1000*10)           
         }
     }, [userRepos, userStaredRepos])
     if(!user || !user.id) {
@@ -138,10 +143,17 @@ Index.getInitialProps = async ({ ctx, reduxStore })=>{
         }
     }
     if(!isServer) {
-        if(cache.get('userRepos') && cache.get('userStaredRepos')) {
+        /* if(cache.get('userRepos') && cache.get('userStaredRepos')) {
             return {
                 userRepos: cache.get('userRepos'),
                 userStaredRepos: cache.get('userStaredRepos'),
+            }
+        } */
+
+        if(cachedUserRepos && cachedUserStaredRepos) {
+            return {
+                userRepos: cachedUserRepos,
+                userStaredRepos: cachedUserStaredRepos,
             }
         }
     }
