@@ -1,9 +1,12 @@
-import { memo, isValidElement } from 'react'
+import { memo, isValidElement, useEffect } from 'react'
 import { withRouter } from 'next/router'
 import { Row, Col, List, Pagination } from 'antd'
 import Link from 'next/link'
 import Router from 'next/router'
 import Repo from '../components/Repo'
+
+import { cacheArray } from '../lib/repo-basic-cache'
+
 const api = require('../lib/api')
 
 
@@ -52,6 +55,9 @@ function noop () {
 }
 
 const per_page = 20
+
+const isServer = typeof window === 'undefined'
+
 const FilterLink = memo(({ name, query, lang, sort, order, page })=>{
     /* const doSearch = config => {
         Router.push({
@@ -90,6 +96,10 @@ function Search ({ router, repos }) {
     //return <span>Search = {router.query.query}</span> 
     const { ...querys } = router.query
     const { sort, order, lang, page } = router.query
+
+    useEffect(()=>{
+        if(!isServer) cacheArray(repos.items)
+    })
     /* const handleLanguageChange = (language) => {
         Router.push({
             pathname: `/search`,

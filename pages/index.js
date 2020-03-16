@@ -7,6 +7,8 @@ import Router, { withRouter } from 'next/router'
 import LRU from 'lru-cache'
 
 import Repo from '../components/Repo'
+
+import { cacheArray } from '../lib/repo-basic-cache'
 // two type of cache one two
 /* const cache = new LRU({
     maxAge: 1000 * 5
@@ -44,6 +46,13 @@ const { publicRuntimeConfig } = getConfig()
             }, 1000*10)           
         }
     }, [userRepos, userStaredRepos])
+
+    useEffect(()=>{
+        if(!isServer) {
+            cacheArray(userRepos)
+            cacheArray(userStaredRepos)
+        }
+    })
     if(!user || !user.id) {
         return <div className="root">
             <p>You have not login  Please login </p>
