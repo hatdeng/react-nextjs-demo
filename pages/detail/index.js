@@ -1,10 +1,19 @@
 /* import MarkdownIt from 'markdown-it'
 
 import 'github-markdown-css' */
-
+import dynamic from 'next/dynamic'
 import withRepoBase from '../../components/with-repo-basic'
 import api from '../../lib/api'
-import MDRenderer from '../../components/MarkdownRender'
+//import MDRenderer from '../../components/MarkdownRender'
+
+const MDRenderer = dynamic(()=>import('../../components/MarkdownRender'))
+/* 
+可以添加loading 组件
+const MDRenderer = dynamic(
+    ()=>import('../../components/MarkdownRender'),
+    {
+        loading: ()=> <p>Loading</p>
+    }) */
 /* const md = new MarkdownIt({
     html: true,
     linkify: true,

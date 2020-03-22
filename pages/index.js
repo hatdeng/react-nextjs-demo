@@ -49,8 +49,10 @@ const { publicRuntimeConfig } = getConfig()
 
     useEffect(()=>{
         if(!isServer) {
-            cacheArray(userRepos)
-            cacheArray(userStaredRepos)
+            if(userRepos && userStaredRepos) {                
+                cacheArray(userRepos)
+                cacheArray(userStaredRepos)
+            }
         }
     })
     if(!user || !user.id) {

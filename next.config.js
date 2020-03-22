@@ -1,4 +1,6 @@
+const webpack = require('webpack')
 const withCss = require('@zeit/next-css')
+const withBundleAnalyzer = require('@zeit/next-bundle-analyzer')
 const Config = require('./config')
 
 const configs = {
@@ -55,7 +57,7 @@ const configs = {
 if(typeof require !== 'undefined') {
     require.extensions['.css'] = file => {}
 }
-module.exports = withCss({
+module.exports = withBundleAnalyzer(withCss({
     env: {
         customKey: 'value',
     },
@@ -64,10 +66,26 @@ module.exports = withCss({
         secondSecred: process.env.SECOND_SECRET,
     },
     // 在服务器渲染和客户端渲染都可获取的配置
-    
+
+    //https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
+    webpack(config) {
+        config.plugins.push(new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/))
+        return config
+    },
     publicRuntimeConfig: {
         staticFolder: '/static',
         GITHUB_OAUTH_URL: Config.GITHUB_OAUTH_URL,
         OAUTH_URL: Config.OAUTH_URL
     },
-})
+    analyzeBrowser: ['browser', 'both'].includes(process.env.BUNDLE_ANALYZE),
+    bundleAnalyzerConfig: {
+        server: {
+            AnalyzerMode: 'static',
+            reportFilename: '../bundles/server.html'
+        },
+        browser: {
+            AnalyzerMode: 'static',
+            reportFilename: '../bundles/client.html'
+        }
+    }
+}))
